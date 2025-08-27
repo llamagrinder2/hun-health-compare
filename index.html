@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interaktív infografika: Magyarország összehasonlítása az EU-val</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F1F5F9;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        #euGdpChartContainer {
+            height: 500px;
+            max-height: 700px;
+            max-width: 900px;
+        }
+        @media (min-width: 768px) {
+            #euGdpChartContainer {
+                height: 600px;
+            }
+        }
+        .info-box {
+            @apply bg-white rounded-lg shadow-md p-6;
+        }
+        .comparison-card {
+            @apply p-6 rounded-lg shadow-inner text-center;
+        }
+    </style>
+</head>
+<body class="text-gray-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-8">
+            <h1 class="text-4xl md:text-5xl font-bold text-red-700">Egészségügyi Pillanatkép</h1>
+            <p id="page-subtitle" class="text-xl md:text-2xl text-teal-600 mt-2">Magyarország és Svédország összehasonlítása</p>
+        </header>
+        
+        <div class="flex flex-col items-center mb-8">
+            <label for="country-select" class="text-lg font-semibold text-gray-700 mb-2">Válassz országot az összehasonlításhoz:</label>
+            <select id="country-select" class="p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-teal-500 w-full max-w-sm text-center">
+                
+            </select>
+        </div>
+
+        <main class="grid grid-cols-1 md:grid-cols-2 gap-8">
+
+            <!-- Life Expectancy & Mortality -->
+            <section class="md:col-span-2 info-box">
+                <h2 class="text-2xl font-bold text-red-700 mb-4 text-center">Az Élet Minősége: Várható élettartam és halálozás</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 mb-8">
+                    <div class="comparison-card bg-red-100">
+                        <h3 class="text-lg font-semibold text-red-800">Várható élettartam Magyarországon</h3>
+                        <p id="hu-life-expectancy" class="text-6xl font-bold text-red-900 my-4">76,2</p>
+                        <p class="text-lg font-semibold text-red-800">év (2021)</p>
+                    </div>
+                    <div class="comparison-card bg-teal-100">
+                        <h3 id="comp-country-life-expectancy-title" class="text-lg font-semibold text-teal-800">Várható élettartam Svédországban</h3>
+                        <p id="comp-life-expectancy" class="text-6xl font-bold text-teal-900 my-4">82,8</p>
+                        <p class="text-lg font-semibold text-teal-800">év (2021)</p>
+                    </div>
+                </div>
+                 <div class="info-box p-6 mt-4">
+                    <h3 class="text-xl font-bold text-red-700 mb-4 text-center">Rák okozta halálozás (100 000 főre, 2020)</h3>
+                    <div class="chart-container h-64 md:h-80">
+                        <canvas id="cancerMortalityChart"></canvas>
+                    </div>
+                    <p class="text-xs text-gray-500 text-center mt-4">Forrás: <a href="https://stats.oecd.org/index.aspx?DataSetCode=HEALTH_STAT" target="_blank" class="text-blue-500 hover:underline">OECD Health Statistics</a></p>
+                </div>
+            </section>
+
+            <!-- Resources -->
+            <section class="md:col-span-2 info-box">
+                <h2 class="text-2xl font-bold text-red-700 mb-4 text-center">A Rendszer Erőforrásai: Finanszírozás és szakemberek</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-red-700 mb-4 text-center">Egészségügyi kiadások a GDP %-ában</h3>
+                        <div class="chart-container h-64 md:h-80">
+                            <canvas id="gdpSpendChart"></canvas>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center mt-4">Forrás: <a href="https://stats.oecd.org/index.aspx?DataSetCode=HEALTH_STAT" target="_blank" class="text-blue-500 hover:underline">OECD Health Statistics</a></p>
+                    </div>
+                    <div class="p-4">
+                        <h3 class="text-xl font-bold text-red-700 mb-4 text-center">Szakemberek 1000 főre (2019)</h3>
+                        <div class="chart-container h-64 md:h-80">
+                            <canvas id="professionalsChart"></canvas>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center mt-4">Forrás: <a href="https://stats.oecd.org/index.aspx?DataSetCode=HEALTH_STAT" target="_blank" class="text-blue-500 hover:underline">OECD Health Statistics</a></p>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Patient Burden & Mental Health -->
+            <section class="md:col-span-2 info-box">
+                <h2 class="text-2xl font-bold text-red-700 mb-4 text-center">A Páciensek Terhei: Költségek, mentális egészség és függőségek</h2>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                     <div class="p-4">
+                        <h3 class="text-xl font-bold text-red-700 mb-4 text-center">Önköltségi kiadások aránya (2021)</h3>
+                         <div class="chart-container h-64 md:h-80">
+                            <canvas id="outOfPocketChart"></canvas>
+                        </div>
+                        <p class="text-xs text-gray-500 text-center mt-4">Forrás: <a href="https://stats.oecd.org/index.aspx?DataSetCode=HEALTH_STAT" target="_blank" class="text-blue-500 hover:underline">OECD Health Statistics</a></p>
+                    </div>
+                    <div class="comparison-card bg-red-100">
+                        <h3 class="text-lg font-semibold text-red-800">Krónikus betegséggel élők aránya Magyarországon</h3>
+                        <p id="hu-chronic-illness" class="text-6xl font-bold text-red-900 my-4">40%</p>
+                        <p class="text-md text-gray-600">A felnőtt lakosság körében (2019), ami magasabb az EU 36%-os átlagánál.</p>
+                        <p class="text-xs text-gray-500 text-center mt-4">Forrás: <a href="https://health.ec.europa.eu/state-health-union_hu" target="_blank" class="text-blue-500 hover:underline">The State of Health in the EU</a></p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- New section for Mental Health & Addictions -->
+            <section class="md:col-span-2 info-box mt-8">
+                <h2 class="text-2xl font-bold text-red-700 mb-4 text-center">Mentális egészség és függőségek</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                    <div class="comparison-card bg-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-700">Öngyilkosságok (100 000 főre, 2019)</h3>
+                        <p class="text-3xl font-bold text-red-900 my-2" id="hu-suicides">17.1</p>
+                        <p class="text-lg font-semibold text-teal-900 my-2" id="comp-suicides">12.1</p>
+                        <p class="text-xs text-gray-500 mt-4">Forrás: OECD Health Statistics</p>
+                    </div>
+                    <div class="comparison-card bg-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-700">Alkoholizmusban elhunytak (100 000 főre, 2017)</h3>
+                        <p class="text-3xl font-bold text-red-900 my-2" id="hu-alcohol-deaths">12.9</p>
+                        <p class="text-lg font-semibold text-teal-900 my-2" id="comp-alcohol-deaths">2.4</p>
+                        <p class="text-xs text-gray-500 mt-4">Forrás: WHO</p>
+                    </div>
+                    <div class="comparison-card bg-gray-100">
+                        <h3 class="text-lg font-semibold text-gray-700">Mentális egészségügyi kiadások (%)</h3>
+                        <p class="text-3xl font-bold text-red-900 my-2" id="hu-mental-health-spend">4.8</p>
+                        <p class="text-lg font-semibold text-teal-900 my-2" id="comp-mental-health-spend">6.3</p>
+                        <p class="text-xs text-gray-500 mt-4">Forrás: OECD Health Statistics</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- EU wide GDP chart -->
+            <section class="md:col-span-2 info-box mt-8">
+                <h2 class="text-2xl font-bold text-red-700 mb-4 text-center">Összehasonlítás Európai Uniós szinten</h2>
+                <div id="euGdpChartContainer" class="chart-container md:col-span-2">
+                    <canvas id="euGdpChart"></canvas>
+                </div>
+                <p class="text-xs text-gray-500 text-center mt-4">Forrás: Eurostat: Healthcare expenditure statistics</p>
+            </section>
+
+        </main>
+
+        <footer class="text-center mt-12 text-gray-500 text-sm">
+            <p>Forrás: OECD, WHO és Eurostat jelentések. Az infografika a legfrissebb elérhető adatok alapján készült.</p>
+            <p>Készült: 2025. augusztus 27.</p>
+            <p class="mt-2">Az infografikák és az oldal a Gemini AI segítségével készült. Az információk összegyűjtése manuálisan történt. Emberi hiba és AI hallucináció esélye kis eséllyel, de fennálhat bármely adatnál.</p>
+        </footer>
+
+    </div>
+
+    <script>
+        const euData = [
+            { country: 'Ausztria', lifeExpectancy: 81.6, cancerMortality: 271, gdpSpend: 11.2, doctorsPer1000: 5.3, nursesPer1000: 8.6, outOfPocket: 24, suicides: 15.6, alcoholDeaths: 12.0, mentalHealthSpend: 6.0 },
+            { country: 'Belgium', lifeExpectancy: 81.8, cancerMortality: 284, gdpSpend: 10.9, doctorsPer1000: 3.1, nursesPer1000: 11.4, outOfPocket: 18, suicides: 15.0, alcoholDeaths: 8.1, mentalHealthSpend: 5.5 },
+            { country: 'Bulgária', lifeExpectancy: 73.6, cancerMortality: 290, gdpSpend: 8.1, doctorsPer1000: 4.1, nursesPer1000: 4.6, outOfPocket: 37, suicides: 11.4, alcoholDeaths: 10.5, mentalHealthSpend: 2.1 },
+            { country: 'Horvátország', lifeExpectancy: 78.4, cancerMortality: 300, gdpSpend: 8.9, doctorsPer1000: 3.5, nursesPer1000: 5.0, outOfPocket: 20, suicides: 14.5, alcoholDeaths: 10.1, mentalHealthSpend: 4.0 },
+            { country: 'Ciprus', lifeExpectancy: 81.4, cancerMortality: 250, gdpSpend: 8.5, doctorsPer1000: 4.2, nursesPer1000: 4.9, outOfPocket: 39, suicides: 4.0, alcoholDeaths: 3.2, mentalHealthSpend: 'Nincs friss adat' },
+            { country: 'Csehország', lifeExpectancy: 78.8, cancerMortality: 282, gdpSpend: 9.3, doctorsPer1000: 4.0, nursesPer1000: 8.0, outOfPocket: 15, suicides: 13.9, alcoholDeaths: 12.1, mentalHealthSpend: 3.5 },
+            { country: 'Dánia', lifeExpectancy: 81.5, cancerMortality: 255, gdpSpend: 10.9, doctorsPer1000: 4.1, nursesPer1000: 9.9, outOfPocket: 14, suicides: 10.7, alcoholDeaths: 10.2, mentalHealthSpend: 6.9 },
+            { country: 'Észtország', lifeExpectancy: 78.6, cancerMortality: 265, gdpSpend: 7.7, doctorsPer1000: 4.6, nursesPer1000: 7.0, outOfPocket: 25, suicides: 14.1, alcoholDeaths: 11.9, mentalHealthSpend: 3.3 },
+            { country: 'Finnország', lifeExpectancy: 81.9, cancerMortality: 275, gdpSpend: 10.4, doctorsPer1000: 4.3, nursesPer1000: 13.9, outOfPocket: 20, suicides: 12.4, alcoholDeaths: 10.5, mentalHealthSpend: 6.0 },
+            { country: 'Franciaország', lifeExpectancy: 82.5, cancerMortality: 270, gdpSpend: 11.9, doctorsPer1000: 3.2, nursesPer1000: 11.3, outOfPocket: 10, suicides: 14.7, alcoholDeaths: 4.3, mentalHealthSpend: 5.2 },
+            { country: 'Németország', lifeExpectancy: 81.3, cancerMortality: 268, gdpSpend: 12.8, doctorsPer1000: 4.5, nursesPer1000: 11.4, outOfPocket: 13, suicides: 11.8, alcoholDeaths: 9.9, mentalHealthSpend: 5.8 },
+            { country: 'Görögország', lifeExpectancy: 80.6, cancerMortality: 288, gdpSpend: 7.8, doctorsPer1000: 5.0, nursesPer1000: 3.4, outOfPocket: 35, suicides: 4.0, alcoholDeaths: 2.5, mentalHealthSpend: 2.1 },
+            { country: 'Magyarország', lifeExpectancy: 76.2, cancerMortality: 330, gdpSpend: 6.4, doctorsPer1000: 3.5, nursesPer1000: 6.4, outOfPocket: 28, suicides: 17.1, alcoholDeaths: 12.9, mentalHealthSpend: 4.8 },
+            { country: 'Írország', lifeExpectancy: 82.3, cancerMortality: 260, gdpSpend: 6.9, doctorsPer1000: 3.3, nursesPer1000: 7.9, outOfPocket: 23, suicides: 9.3, alcoholDeaths: 5.4, mentalHealthSpend: 9.6 },
+            { country: 'Olaszország', lifeExpectancy: 82.9, cancerMortality: 264, gdpSpend: 9.8, doctorsPer1000: 4.1, nursesPer1000: 6.3, outOfPocket: 20, suicides: 6.8, alcoholDeaths: 2.9, mentalHealthSpend: 3.5 },
+            { country: 'Lettország', lifeExpectancy: 75.9, cancerMortality: 310, gdpSpend: 6.7, doctorsPer1000: 3.4, nursesPer1000: 4.7, outOfPocket: 34, suicides: 18.2, alcoholDeaths: 16.5, mentalHealthSpend: 2.5 },
+            { country: 'Litvánia', lifeExpectancy: 75.9, cancerMortality: 305, gdpSpend: 6.7, doctorsPer1000: 5.0, nursesPer1000: 8.6, outOfPocket: 31, suicides: 26.1, alcoholDeaths: 16.0, mentalHealthSpend: 3.4 },
+            { country: 'Luxemburg', lifeExpectancy: 82.7, cancerMortality: 245, gdpSpend: 5.7, doctorsPer1000: 2.8, nursesPer1000: 13.2, outOfPocket: 21, suicides: 9.8, alcoholDeaths: 4.1, mentalHealthSpend: 6.3 },
+            { country: 'Málta', lifeExpectancy: 82.3, cancerMortality: 258, gdpSpend: 8.9, doctorsPer1000: 4.9, nursesPer1000: 9.5, outOfPocket: 18, suicides: 4.3, alcoholDeaths: 2.8, mentalHealthSpend: 4.1 },
+            { country: 'Hollandia', lifeExpectancy: 82.0, cancerMortality: 266, gdpSpend: 10.8, doctorsPer1000: 3.9, nursesPer1000: 11.9, outOfPocket: 6, suicides: 10.3, alcoholDeaths: 3.1, mentalHealthSpend: 10.3 },
+            { country: 'Lengyelország', lifeExpectancy: 77.8, cancerMortality: 301, gdpSpend: 6.7, doctorsPer1000: 3.4, nursesPer1000: 5.2, outOfPocket: 23, suicides: 13.0, alcoholDeaths: 7.8, mentalHealthSpend: 2.5 },
+            { country: 'Portugália', lifeExpectancy: 81.3, cancerMortality: 262, gdpSpend: 9.9, doctorsPer1000: 5.5, nursesPer1000: 7.0, outOfPocket: 28, suicides: 8.5, alcoholDeaths: 5.9, mentalHealthSpend: 4.1 },
+            { country: 'Románia', lifeExpectancy: 74.2, cancerMortality: 285, gdpSpend: 6.2, doctorsPer1000: 3.4, nursesPer1000: 7.4, outOfPocket: 23, suicides: 10.1, alcoholDeaths: 8.8, mentalHealthSpend: 2.2 },
+            { country: 'Szlovákia', lifeExpectancy: 77.2, cancerMortality: 308, gdpSpend: 7.8, doctorsPer1000: 3.9, nursesPer1000: 7.4, outOfPocket: 23, suicides: 10.2, alcoholDeaths: 13.4, mentalHealthSpend: 4.5 },
+            { country: 'Szlovénia', lifeExpectancy: 80.9, cancerMortality: 278, gdpSpend: 9.6, doctorsPer1000: 3.4, nursesPer1000: 10.3, outOfPocket: 15, suicides: 16.1, alcoholDeaths: 9.6, mentalHealthSpend: 5.2 },
+            { country: 'Spanyolország', lifeExpectancy: 83.2, cancerMortality: 259, gdpSpend: 10.4, doctorsPer1000: 4.1, nursesPer1000: 5.6, outOfPocket: 23, suicides: 5.6, alcoholDeaths: 2.4, mentalHealthSpend: 5.8 },
+            { country: 'Svédország', lifeExpectancy: 82.8, cancerMortality: 263, gdpSpend: 10.6, doctorsPer1000: 4.2, nursesPer1000: 10.9, outOfPocket: 18, suicides: 12.1, alcoholDeaths: 2.4, mentalHealthSpend: 6.3 }
+        ];
+
+        const hungaryData = euData.find(d => d.country === 'Magyarország');
+        let selectedCountryData;
+
+        let cancerChart, gdpChart, professionalsChart, outOfPocketChart, euGdpChart;
+
+        function updateInfographic(countryName) {
+            selectedCountryData = euData.find(d => d.country === countryName);
+            
+            document.getElementById('page-subtitle').textContent = `Magyarország és ${countryName} összehasonlítása`;
+            document.getElementById('comp-country-life-expectancy-title').textContent = `Várható élettartam ${countryName}-ban`;
+            document.getElementById('comp-life-expectancy').textContent = selectedCountryData.lifeExpectancy.toFixed(1);
+
+            document.getElementById('hu-suicides').textContent = hungaryData.suicides;
+            document.getElementById('comp-suicides').textContent = selectedCountryData.suicides;
+
+            document.getElementById('hu-alcohol-deaths').textContent = hungaryData.alcoholDeaths;
+            document.getElementById('comp-alcohol-deaths').textContent = selectedCountryData.alcoholDeaths;
+
+            document.getElementById('hu-mental-health-spend').textContent = hungaryData.mentalHealthSpend;
+            document.getElementById('comp-mental-health-spend').textContent = selectedCountryData.mentalHealthSpend;
+            if (typeof selectedCountryData.mentalHealthSpend === 'string') {
+                document.getElementById('comp-mental-health-spend').classList.add('text-sm');
+            } else {
+                 document.getElementById('comp-mental-health-spend').classList.remove('text-sm');
+            }
+
+            cancerChart.data.labels = ['Magyarország', selectedCountryData.country];
+            cancerChart.data.datasets[0].data = [hungaryData.cancerMortality, selectedCountryData.cancerMortality];
+            cancerChart.update();
+
+            gdpChart.data.labels = [`Egészségügyi kiadás a GDP %-ában`];
+            gdpChart.data.datasets[0].label = `Magyarország (2023)`;
+            gdpChart.data.datasets[0].data = [hungaryData.gdpSpend];
+            gdpChart.data.datasets[1].label = `${selectedCountryData.country} (2021)`;
+            gdpChart.data.datasets[1].data = [selectedCountryData.gdpSpend];
+            gdpChart.update();
+
+            professionalsChart.data.datasets[0].data = [hungaryData.doctorsPer1000, hungaryData.nursesPer1000];
+            professionalsChart.data.datasets[1].data = [selectedCountryData.doctorsPer1000, selectedCountryData.nursesPer1000];
+            professionalsChart.update();
+
+            outOfPocketChart.data.labels = ['Magyarország', selectedCountryData.country];
+            outOfPocketChart.data.datasets[0].data = [hungaryData.outOfPocket, selectedCountryData.outOfPocket];
+            outOfPocketChart.update();
+
+            const euGdpColors = euGdpData.map(item => {
+                if (item.country === 'Magyarország') return '#B22222';
+                if (item.country === selectedCountryData.country) return '#20B2AA';
+                return '#1E3A8A';
+            });
+            const euGdpBorderColors = euGdpData.map(item => {
+                if (item.country === 'Magyarország') return '#8B0000';
+                if (item.country === selectedCountryData.country) return '#1A8787';
+                return '#121F5C';
+            });
+
+            euGdpChart.data.datasets[0].backgroundColor = euGdpColors;
+            euGdpChart.data.datasets[0].borderColor = euGdpBorderColors;
+            euGdpChart.update();
+        }
+
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            }
+            return label;
+        };
+
+        const defaultChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'top',
+                },
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTitleCallback
+                    }
+                }
+            }
+        };
+
+        const euGdpData = [...euData].sort((a, b) => b.gdpSpend - a.gdpSpend);
+
+        window.onload = function() {
+            const selectElement = document.getElementById('country-select');
+            euData.forEach(item => {
+                if (item.country !== 'Magyarország') {
+                    const option = document.createElement('option');
+                    option.value = item.country;
+                    option.textContent = item.country;
+                    selectElement.appendChild(option);
+                }
+            });
+
+            selectElement.value = 'Svédország';
+
+            cancerChart = new Chart(document.getElementById('cancerMortalityChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Magyarország', 'Svédország'],
+                    datasets: [{
+                        label: 'Haláleset / 100 000 fő',
+                        data: [hungaryData.cancerMortality, euData.find(d => d.country === 'Svédország').cancerMortality],
+                        backgroundColor: ['#B22222', '#20B2AA'],
+                        borderColor: ['#8B0000', '#1A8787'],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...defaultChartOptions,
+                    indexAxis: 'y',
+                    scales: { x: { beginAtZero: true } }
+                }
+            });
+
+            gdpChart = new Chart(document.getElementById('gdpSpendChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Egészségügyi kiadás a GDP %-ában'],
+                    datasets: [
+                        {
+                            label: 'Magyarország (2023)',
+                            data: [hungaryData.gdpSpend],
+                            backgroundColor: '#B22222',
+                            borderColor: '#8B0000',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Svédország (2021)',
+                            data: [euData.find(d => d.country === 'Svédország').gdpSpend],
+                            backgroundColor: '#20B2AA',
+                            borderColor: '#1A8787',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    ...defaultChartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: function(value) { return value + '%' } }
+                        }
+                    }
+                }
+            });
+
+            professionalsChart = new Chart(document.getElementById('professionalsChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Orvosok', 'Ápolók'],
+                    datasets: [
+                        {
+                            label: 'Magyarország',
+                            data: [hungaryData.doctorsPer1000, hungaryData.nursesPer1000],
+                            backgroundColor: '#B22222',
+                            borderColor: '#8B0000',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Svédország',
+                            data: [euData.find(d => d.country === 'Svédország').doctorsPer1000, euData.find(d => d.country === 'Svédország').nursesPer1000],
+                            backgroundColor: '#20B2AA',
+                            borderColor: '#1A8787',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    ...defaultChartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: { display: true, text: 'Szakember / 1000 fő' }
+                        }
+                    }
+                }
+            });
+
+            outOfPocketChart = new Chart(document.getElementById('outOfPocketChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Magyarország', 'Svédország'],
+                    datasets: [{
+                        label: 'Önköltségi kiadások aránya (%)',
+                        data: [hungaryData.outOfPocket, euData.find(d => d.country === 'Svédország').outOfPocket],
+                        backgroundColor: ['#B22222', '#20B2AA'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: { ...defaultChartOptions }
+            });
+
+            const euGdpColors = euGdpData.map(item => {
+                if (item.country === 'Magyarország') return '#B22222';
+                if (item.country === 'Svédország') return '#20B2AA';
+                return '#1E3A8A';
+            });
+            const euGdpBorderColors = euGdpData.map(item => {
+                if (item.country === 'Magyarország') return '#8B0000';
+                if (item.country === 'Svédország') return '#1A8787';
+                return '#121F5C';
+            });
+
+            euGdpChart = new Chart(document.getElementById('euGdpChart'), {
+                type: 'bar',
+                data: {
+                    labels: euGdpData.map(item => item.country.length > 16 ? item.country.split(' ').reduce((acc, word) => {
+                        if (acc.length === 0 || acc[acc.length - 1].length + word.length + 1 > 16) {
+                            acc.push(word);
+                        } else {
+                            acc[acc.length - 1] += ' ' + word;
+                        }
+                        return acc;
+                    }, []) : item.country),
+                    datasets: [{
+                        label: 'GDP-arányos egészségügyi kiadás (%)',
+                        data: euGdpData.map(item => item.gdpSpend),
+                        backgroundColor: euGdpColors,
+                        borderColor: euGdpBorderColors,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...defaultChartOptions,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { callback: function(value) { return value + '%' } }
+                        }
+                    }
+                }
+            });
+
+            selectElement.addEventListener('change', (event) => {
+                updateInfographic(event.target.value);
+            });
+            
+            updateInfographic('Svédország');
+        };
+    </script>
+</body>
+</html>
