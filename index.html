@@ -183,6 +183,14 @@
                 <p class="text-xs text-gray-500 text-center mt-4">Forrás: Eurostat: Healthcare expenditure statistics</p>
             </section>
 
+            <!-- Data Download Link -->
+            <div class="md:col-span-2 text-center mt-8">
+                <p class="text-lg text-gray-700 font-semibold mb-2">Ezek a manuálisan kigyűjtött adatok, amelyekre az oldal épül.</p>
+                <a href="https://drive.google.com/drive/folders/1LDZYb-zNMgcYR15ndx0umZlkN70TUWxC?usp=sharing" target="_blank" class="inline-block bg-teal-600 hover:bg-teal-700 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300">
+                    Adatok letöltése
+                </a>
+            </div>
+
         </main>
 
         <footer class="text-center mt-12 text-gray-500 text-sm">
@@ -544,6 +552,8 @@
                     scales: { x: { beginAtZero: true } }
                 }
             });
+
+            const euGdpData = [...euData].sort((a, b) => b.gdpSpend - a.gdpSpend);
 
             const euGdpColors = euGdpData.map(item => {
                 if (item.country === 'Magyarország') return '#B22222';
